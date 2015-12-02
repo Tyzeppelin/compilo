@@ -1,0 +1,10 @@
+begin
+    int n,
+    bool a;
+    n <- 12 + 3 ;
+    a <- n < 2;
+    begin
+        int b;
+        b <- 265 
+    end
+end

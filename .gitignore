@@ -18,3 +18,11 @@ _build/
 # oasis generated files
 setup.data
 setup.log
+
+# no pdf
+
+*.pdf
+
+# no tarballs
+*.tar.gz
+*.tar.xz
