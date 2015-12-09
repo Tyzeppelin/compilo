@@ -19,6 +19,7 @@ let loop debug =
         Printf.printf "\n"
        end
       else
+          begin (StrSet.printf free) end
         let val_option = Eval.eval env ast in
         (match val_option with
         | None -> ()

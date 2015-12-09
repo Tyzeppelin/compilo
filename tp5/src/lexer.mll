@@ -29,7 +29,7 @@ rule get_token = parse
   | "/*" ([^'*']|('*'+[^'*''/']))* '*'+ '/' { get_token lexbuf}
   | ['\n' '\r'] { Lexing.new_line lexbuf; get_token lexbuf }
   | space { get_token lexbuf }
-  | "<"   { LESS } 
+  | "<"   { LESS }
   | '+'   { ADD }
   | '*'   { MULT }
   | '-'   { SUB }
@@ -44,10 +44,10 @@ rule get_token = parse
   | '|'   { ALTERNATIVE }
   | ','   { COMMA }
   | ";;"  { END_OF_EXPRESSION }
-  | digit+ as v { INT (int_of_string v) } 
-  | letter (letter | digit)* as id { 
+  | digit+ as v { INT (int_of_string v) }
+  | letter (letter | digit)* as id {
     try
-      Hashtbl.find keyword_table id 
+      Hashtbl.find keyword_table id
     with Not_found -> IDENT id
   }
   | eof { EOF }
