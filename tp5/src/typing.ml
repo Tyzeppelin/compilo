@@ -6,7 +6,7 @@ let is_list_typ = function
  | _       -> false
 
 
-let rec typ_of_pattern : ml_pattern -> TypEnv.t * Ast.typ = 
+let rec typ_of_pattern : ml_pattern -> TypEnv.t * Ast.typ =
  function
  | Ml_pattern_var(s,typ) -> failwith "TODO"
  | Ml_pattern_bool b -> failwith "TODO"
@@ -30,14 +30,14 @@ let rec wt_expr (env:TypEnv.t) = function
  | Ml_let (x,e1,e2) -> failwith "TODO"
  | Ml_letrec(x,typ,e1,e2) -> failwith "TODO"
 
-let wt_ast tenv ast = 
+let wt_ast tenv ast =
   match ast with
   | Ml_expr e -> wt_expr (!tenv) e
-  | Ml_definition(s,e) -> 
+  | Ml_definition(s,e) ->
    let ty' = wt_expr !tenv e in
    tenv := TypEnv.update s ty'  !tenv ;
    ty'
-  | Ml_definitionrec (s,ty',e) -> 
+  | Ml_definitionrec (s,ty',e) ->
    let ty = wt_expr (TypEnv.update s ty' !tenv) e in
    if ty = ty'
    then
@@ -47,6 +47,6 @@ let wt_ast tenv ast =
     end
    else failwith (Printf.sprintf "Type error: let rec with incompatible types %s and %s" (string_of_typ ty) (string_of_typ ty'))
 
- 
+
 
 

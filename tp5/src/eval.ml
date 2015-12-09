@@ -5,7 +5,7 @@ exception Error of string
 
 let eval_unop op arg =
   match arg with
-  | Val_pair(v1, v2) -> begin 
+  | Val_pair(v1, v2) -> begin
     match op with
     | Ml_fst -> v1
     | Ml_snd -> v2
@@ -35,7 +35,7 @@ and eval_binop op arg1 arg2 =
     match op with
     | Ml_eq -> Val_bool(eval_eq arg1 arg2)
     | _ -> raise (Error "wrong type in eval_binop")
-      
+
 let rec pattern_matching pattern value =
   match (pattern, value) with
   | (Ml_pattern_var(id,_), v) -> [(id, v)]
@@ -59,7 +59,7 @@ let rec eval_expr env = function
   | Ml_unop(op, e) -> eval_unop op (eval_expr env e)
   | Ml_binop(op, e1, e2) -> eval_binop op (eval_expr env e1) (eval_expr env e2)
   | Ml_var x -> begin
-    try 
+    try
       List.assoc x env
     with Not_found -> raise (Error ("unbound variable " ^ x))
   end
@@ -75,10 +75,10 @@ let rec eval_expr env = function
     match eval_expr env e1 with
     | Val_closure(env', pattern_expr_list) -> begin
       try
-	let (pattern_matching_env, e) = 
-	  tryfind (fun (pattern, e) -> (pattern_matching pattern val_arg, e)) pattern_expr_list
-	in
-	eval_expr (pattern_matching_env @ env') e
+    let (pattern_matching_env, e) =
+      tryfind (fun (pattern, e) -> (pattern_matching pattern val_arg, e)) pattern_expr_list
+    in
+    eval_expr (pattern_matching_env @ env') e
       with Not_found -> raise (Error "no match in pattern matching")
     end
     | _ -> raise (Error "wrong type in application")
@@ -92,16 +92,16 @@ let rec eval_expr env = function
 
 let eval env = function
   | Ml_definition(id, expr) -> begin
-    let v = eval_expr !env expr in 
+    let v = eval_expr !env expr in
     env := (id, v) :: !env;
     None
   end
   | Ml_definitionrec(f, _, expr) -> begin
     match expr with
-    | Ml_fun pattern_expr_list -> 
-      let rec env' = (f, Val_closure(env', pattern_expr_list)) :: !env in 
+    | Ml_fun pattern_expr_list ->
+      let rec env' = (f, Val_closure(env', pattern_expr_list)) :: !env in
       env := env';
       None
-    | _ -> raise (Error "illegal recursive definition")    
+    | _ -> raise (Error "illegal recursive definition")
   end
   | Ml_expr expr -> Some(eval_expr !env expr)

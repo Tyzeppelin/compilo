@@ -14,7 +14,7 @@ val add : string -> t -> t
 val remove : string -> t -> t
 
 (* [union s1 s2] returns the union of the set [s1] and [s2]. *)
-val union : t -> t -> t 
+val union : t -> t -> t
 
 (* [diff s1 s2] returns the set s1 \ s2 i.e., removes the elements of s2 from s1 *)
 val diff : t -> t -> t
