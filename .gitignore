@@ -19,10 +19,26 @@ _build/
 setup.data
 setup.log
 
-# no pdf
+# pdf
 
 *.pdf
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
 
-# no tarballs
-*.tar.gz
-*.tar.xz
+# no compressed/tape files
+*.7z
+*.jar
+*.rar
+*.zip
+*.gz
+*.bzip
+*.bz2
+*.xz
+*.lzma
+*.cab
+*.tar
