@@ -23,6 +23,16 @@ let rec typ_of_pattern : ml_pattern -> TypEnv.t * Ast.typ =
         then TypEnv.add_all e1 e2, t2
         else failwith (Printf.sprintf "Pattern type mismatch: %s expected but %s found." (string_of_typ t2) (string_of_typ (TList t1)))
 
+let rec same_types l =
+    match l with
+    | [] -> failwith "Function error: Should have at least one expression"
+    | e::le ->
+        if List.for_all (fun ty -> ty = e) l
+        then e
+        else
+            let m = List.find(fun ty -> ty <> e) l in
+            failwith (Printf.sprintf "Function expression error: an expression was expected of type %s but %s found" (string_of_typ e) (string_of_typ m))
+
 let rec wt_expr (env:TypEnv.t) = function
  | Ml_int i -> Tint
  | Ml_bool b -> Tbool
@@ -68,10 +78,21 @@ let rec wt_expr (env:TypEnv.t) = function
      if t1 = Tbool
      then if t2 = t3
         then t2
-        else failwith (Printf.sprintf "Type Mismatch: Else branch should be %s type but %s found." (string_of_typ e2) (string_of_typ e3))
-     failwith (Printf.sprintf "Boolean error: If condition type must be a boolean, but %s found" (string_of_typ e1))
- | Ml_fun l -> failwith "TODO"
- | Ml_app(e1,e2) -> failwith "TODO"
+        else failwith (Printf.sprintf "Type Mismatch: Else branch should be %s type but %s found." (string_of_typ t2) (string_of_typ t3))
+     else failwith (Printf.sprintf "Boolean error: If condition type must be a boolean, but %s found" (string_of_typ t1))
+ | Ml_fun l ->
+     let ltyp = List.map (fun (p,e) ->
+        let (envp,tp) = typ_of_pattern p in
+     TFun(tp, wt_expr (TypEnv.update_all envp env) e)) l in
+     same_types ltyp
+ | Ml_app(e1,e2) ->
+    let t1 = wt_expr env e1 in
+    let t2 = wt_expr env e2 in
+    begin
+        match t1 with
+        | TFun(tp,te) -> if t2 = te then te else failwith (Printf.sprintf "Type error: cannot apply function of type %s with argument of type %s" (string_of_typ t1) (string_of_typ t2))
+        | _ -> failwith (Printf.sprintf "Type error: term has type %s and cannot be applied with argument of type %s" (string_of_typ t1) (string_of_typ t2))
+    end
  | Ml_let (x,e1,e2) -> failwith "TODO"
  | Ml_letrec(x,typ,e1,e2) -> failwith "TODO"
 
