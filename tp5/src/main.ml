@@ -19,16 +19,14 @@ let loop debug =
         Printf.printf "\n"
        end
       else
-          begin (StrSet.printf free) end
         let val_option = Eval.eval env ast in
         (match val_option with
         | None -> ()
         | Some v ->
      print_string "- = ";
-     Print_val.print_val v;
+     Print_val.print_val v);
         let typ = Typing.wt_ast tenv ast in
          Printf.printf ":%s\n" (Print_ast.string_of_typ typ)
-    )
     with
     | Eval.Error msg -> Printf.printf " error: eval: %s\n" msg
     | Failure msg -> Printf.printf " error: %s\n" msg

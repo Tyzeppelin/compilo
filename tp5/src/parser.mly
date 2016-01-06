@@ -33,9 +33,9 @@
 
 main:
  | EOF { Printf.printf "\nbye"; exit 0 }
- | LET IDENT EQUAL expr END_OF_EXPRESSION { Ml_definition($2, fst $4), (*TODO*) StrSet.empty }
- | LET REC IDENT EQUAL expr END_OF_EXPRESSION { Ml_definitionrec($3, failwith "let rec type expected", fst $5) , (*TODO*) StrSet.empty }
- | expr END_OF_EXPRESSION { Ml_expr (fst $1) , (*TODO*) StrSet.empty}
+ | LET IDENT EQUAL expr END_OF_EXPRESSION { Ml_definition($2, fst $4), snd $4 }
+ | LET REC IDENT EQUAL expr END_OF_EXPRESSION { Ml_definitionrec($3, failwith "let rec type expected", fst $5) , snd $5}
+ | expr END_OF_EXPRESSION { Ml_expr (fst $1) , snd $1}
  | error {
     let bol = (Parsing.symbol_start_pos ()).Lexing.pos_bol in
     failwith ("parsing: line " ^
