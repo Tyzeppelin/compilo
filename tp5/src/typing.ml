@@ -19,7 +19,7 @@ let rec typ_of_pattern : ml_pattern -> TypEnv.t * Ast.typ =
  | Ml_pattern_cons(x,l) ->
     let e1,t1 = typ_of_pattern x in
     let e2,t2 = typ_of_pattern l in
-        if t2 = Tlist t1
+        if t2 = TList t1
         then TypEnv.add_all e1 e2, t2
         else failwith (Printf.sprintf "Pattern type mismatch: %s expected but %s found." (string_of_typ t2) (string_of_typ (TList t1)))
 
@@ -35,19 +35,23 @@ let rec wt_expr (env:TypEnv.t) = function
     let t2 = wt_expr env e2 in
     TPair(t1,t2)
  | Ml_cons(e1,le1) ->
-    let t1 = wt_expr e1 in
-    let t2 = wt_expr e2 in
-        if t2 = Tlist t1
+    let t1 = wt_expr env e1 in
+    let t2 = wt_expr env le1 in
+        if t2 = TList t1
         then t2
         else failwith (Printf.sprintf "Type mismatch : %s expected but %s found." (string_of_typ t1) (string_of_typ t2))
- | Ml_unop(op,e) -> begin
-     match op,e with
+ | Ml_unop(op,e) ->
+    let t = wt_expr env e in
+    begin
+     match op,t with
      |Ml_fst, TPair(x,y) -> x
      |Ml_snd, TPair(x,y) -> y
-     | _ -> failwith (Printf.sprintf "Unop error: Op %s does not expect type %s." (string_of_unop op) (string_of_typ e))
+     | _ -> failwith (Printf.sprintf "Unop error: Op %s does not expect type %s." (string_of_unop op) (string_of_typ t))
  end
  | Ml_binop(op,e1,e2) -> begin
-     match op,e1,e2 with
+     let t1 = wt_expr env e1 in
+     let t2 = wt_expr env e2 in
+     match op,t1,t2 with
      | (Ml_add | Ml_sub | Ml_mult)  , Tint , Tint ->  Tint
      | Ml_less , Tint , Tint ->  Tbool
      | Ml_eq , x, y ->
@@ -57,7 +61,7 @@ let rec wt_expr (env:TypEnv.t) = function
      | _ -> failwith (Printf.sprintf "Binop error: Op %s waiting members to be \"int\" but found %s %s" (string_of_binop op) (string_of_typ t1) (string_of_typ t2))
  end
  | Ml_var x -> TypEnv.find x env
- | Ml_if(e1,e2,e3) -> begin
+ | Ml_if(e1,e2,e3) ->
      let t1 = wt_expr env e1 in
      let t2 = wt_expr env e2 in
      let t3 = wt_expr env e3 in
@@ -66,7 +70,6 @@ let rec wt_expr (env:TypEnv.t) = function
         then t2
         else failwith (Printf.sprintf "Type Mismatch: Else branch should be %s type but %s found." (string_of_typ e2) (string_of_typ e3))
      failwith (Printf.sprintf "Boolean error: If condition type must be a boolean, but %s found" (string_of_typ e1))
- end
  | Ml_fun l -> failwith "TODO"
  | Ml_app(e1,e2) -> failwith "TODO"
  | Ml_let (x,e1,e2) -> failwith "TODO"
